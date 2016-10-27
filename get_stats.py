@@ -34,12 +34,19 @@ if __name__ == '__main__':
     months = {'August': 8,
               'September': 9,
               'October': 10}
-    total_dist = 0
+    total_dist_miles = 0
+    total_time_mins = 0
     for month_name, month_num in months.iteritems():
         trips = get_trips_for_month(month_num, s)
-        month_dist = sum([trip['miles'] for trip in trips.itervalues()])
+        month_dist_miles = sum([trip['miles'] for trip in trips.itervalues()])
+        month_time_mins = sum([trip['duration'] for trip in trips.itervalues()])
         print 'Total distance traveled in {month}: {dist} miles'.format(month=month_name,
-                                                                        dist=month_dist)
-        total_dist += month_dist
+                                                                        dist=month_dist_miles)
+        print 'Total time traveled in {month}: {h} hours {m} minutes'.format(month=month_name,
+                                                                             h=month_time_mins / 60,
+                                                                             m=month_time_mins % 60)
+        total_dist_miles += month_dist_miles
+        total_time_mins += month_time_mins
     
-    print 'Total distance traveled: {} miles'.format(total_dist)
+    print 'Total distance traveled: {} miles'.format(total_dist_miles)
+    print 'Total time traveled: {h} hours {m} minutes'.format(h=total_time_mins / 60, m=int(total_time_mins % 60))
