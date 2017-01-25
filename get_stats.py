@@ -2,6 +2,7 @@ from fake_useragent import UserAgent
 import requests
 import getpass
 import datetime
+from urllib2 import URLError
 
 
 START_DATE = datetime.date(2016, 8, 1)
@@ -9,10 +10,10 @@ START_DATE = datetime.date(2016, 8, 1)
 AUTH_URL = 'https://bikeshare.metro.net/wp-content/themes/indego/api/authenticate/'
 TRIP_HISTORY_URL = 'https://bikeshare.metro.net/wp-content/themes/indego/api/authenticate/history/'
 
-def get_trips_for_month(month, session): 
+def get_trips_for_month(month, year, session):
     body = {'type':'trips',
             'month':month,
-            'year':2016}
+            'year':year}
     r = session.post(TRIP_HISTORY_URL, json=body, headers=headers)
     return r.json()['data']
 
@@ -35,8 +36,12 @@ def get_dates_since_start():
 
 
 if __name__ == '__main__':
-    ua = UserAgent()
-    headers = {'User-Agent': ua.chrome}
+    try:
+        ua = UserAgent()
+        user_agent = ua.chrome
+    except URLError as url_error:
+        user_agent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.2 (KHTML, like Gecko) Chrome/22.0.1216.0 Safari/537.2'
+    headers = {'User-Agent': user_agent}
     s = requests.Session()
 
     months = get_dates_since_start()
@@ -48,13 +53,13 @@ if __name__ == '__main__':
     total_dist_miles = 0
     total_time_mins = 0
     for date in months:
-        trips = get_trips_for_month(date.month, s)
+        trips = get_trips_for_month(date.month, date.year, s)
         month_dist_miles = sum([trip['miles'] for trip in trips.itervalues()])
         month_time_mins = sum([trip['duration'] for trip in trips.itervalues()])
-        print 'Total distance traveled in {month}/{year}: {dist} miles'.format(month=date.strftime('%B'),
+        print 'Total distance traveled in {month} {year}: {dist} miles'.format(month=date.strftime('%B'),
                                                                                year=date.year,
                                                                                dist=month_dist_miles)
-        print 'Total time traveled in {month}/{year}: {h} hours {m} minutes'.format(month=date.strftime('%B'),
+        print 'Total time traveled in {month} {year}: {h} hours {m} minutes'.format(month=date.strftime('%B'),
                                                                                     year=date.year,
                                                                                     h=month_time_mins / 60,
                                                                                     m=month_time_mins % 60)
