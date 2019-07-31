@@ -6,3 +6,5 @@ Simple Python script to get monthly stats for LA Metro bikeshare usage. Currentl
 * All time distance traveled
 * Duration traveled monthly
 * All time duration traveled
+
+These are my changes
